@@ -1,46 +1,57 @@
 import { JIKAN_API_BASE } from "../constants.js";
 import {
-  AnimeSearchQueryRating,
-  AnimeSearchQueryType,
-  animeSearchQueryRating,
-  animeSearchQueryType,
-} from "../schema/anime.js";
+  ProducersQueryOrderby,
+  producersQueryOrderby,
+} from "../schema/producers.js";
+import { SearchQuerySort, searchQuerySort } from "../schema/search.js";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
 export const argSchema = {
-  type: animeSearchQueryType,
-  rating: animeSearchQueryRating,
-  sfw: z.boolean().optional().describe("Safe For Work filter"),
   page: z.number().default(1).describe("Page number for pagination"),
   limit: z.number().default(25).describe("Number of results per page"),
+  q: z.string().optional().describe("Search query"),
+  order_by: producersQueryOrderby,
+  sort: searchQuerySort,
+  letter: z
+    .string()
+    .optional()
+    .describe("Return entries starting with the given letter"),
 };
 
-export default async function getTopAnime({
+export default async function getProducers({
   page,
   limit,
-  type,
-  rating,
-  sfw,
+  q,
+  order_by,
+  sort,
+  letter,
 }: {
   page: number;
   limit: number;
-  type?: AnimeSearchQueryType;
-  rating?: AnimeSearchQueryRating;
-  sfw?: boolean;
+  q?: string;
+  order_by?: ProducersQueryOrderby;
+  sort?: SearchQuerySort;
+  letter?: string;
 }): Promise<CallToolResult> {
-  const url = new URL("top/anime", JIKAN_API_BASE);
+  const url = new URL("producers", JIKAN_API_BASE);
   url.searchParams.append("page", page.toString());
   url.searchParams.append("limit", limit.toString());
 
-  if (type) {
-    url.searchParams.append("type", type);
+  if (q) {
+    url.searchParams.append("q", q);
   }
-  if (rating) {
-    url.searchParams.append("rating", rating);
+
+  if (order_by) {
+    url.searchParams.append("order_by", order_by);
   }
-  if (sfw) {
-    url.searchParams.append("sfw", sfw.toString());
+
+  if (sort) {
+    url.searchParams.append("sort", sort);
+  }
+
+  if (letter) {
+    url.searchParams.append("letter", letter);
   }
 
   const response = await fetch(url.toString(), {

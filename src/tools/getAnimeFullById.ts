@@ -1,6 +1,6 @@
+import { JIKAN_API_BASE } from "../constants.js";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import { JIKAN_API_BASE } from "../constants.js";
 
 export const argSchema = {
   id: z.number().describe("Anime ID"),
@@ -25,13 +25,13 @@ export default async function getAnimeFullById({
   }
 
   const data = await response.json();
-  const { data: dataAnime } = data;
+  const { data: anime } = data;
 
   return {
     content: [
       {
         type: "text",
-        text: JSON.stringify(dataAnime),
+        text: JSON.stringify(anime),
       },
     ],
   };
