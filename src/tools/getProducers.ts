@@ -1,4 +1,4 @@
-import { JIKAN_API_BASE } from "../constants.js";
+import { getProducers as getProducersFromJikan } from "../lib/jikan.js";
 import {
   ProducersQueryOrderby,
   producersQueryOrderby,
@@ -19,14 +19,7 @@ export const argSchema = {
     .describe("Return entries starting with the given letter"),
 };
 
-export default async function getProducers({
-  page,
-  limit,
-  q,
-  order_by,
-  sort,
-  letter,
-}: {
+export default async function getProducers(args: {
   page: number;
   limit: number;
   q?: string;
@@ -34,38 +27,7 @@ export default async function getProducers({
   sort?: SearchQuerySort;
   letter?: string;
 }): Promise<CallToolResult> {
-  const url = new URL("producers", JIKAN_API_BASE);
-  url.searchParams.append("page", page.toString());
-  url.searchParams.append("limit", limit.toString());
-
-  if (q) {
-    url.searchParams.append("q", q);
-  }
-
-  if (order_by) {
-    url.searchParams.append("order_by", order_by);
-  }
-
-  if (sort) {
-    url.searchParams.append("sort", sort);
-  }
-
-  if (letter) {
-    url.searchParams.append("letter", letter);
-  }
-
-  const response = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error fetching data: ${response.statusText}`);
-  }
-
-  const data = await response.json();
+  const data = await getProducersFromJikan(args);
 
   return {
     content: [

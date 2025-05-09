@@ -1,4 +1,4 @@
-import { JIKAN_API_BASE } from "../constants.js";
+import { getAnimeFullById as getAnimeFullByIdFromJikan } from "../lib/jikan.js";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
@@ -11,21 +11,7 @@ export default async function getAnimeFullById({
 }: {
   id: number;
 }): Promise<CallToolResult> {
-  const url = new URL(`anime/${id}/full`, JIKAN_API_BASE);
-
-  const response = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error fetching data: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  const { data: anime } = data;
+  const { data: anime } = await getAnimeFullByIdFromJikan(id);
 
   return {
     content: [

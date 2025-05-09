@@ -1,5 +1,4 @@
-import { JIKAN_API_BASE } from "../constants.js";
-import { logger } from "../logger.js";
+import { getAnimeSearch as getAnimeSearchFromJikan } from "../lib/jikan.js";
 import {
   AnimeSearchQueryOrderby,
   AnimeSearchQueryRating,
@@ -51,24 +50,7 @@ export const argSchema = {
     ),
 };
 
-export default async function getAnimeSearch({
-  page,
-  limit,
-  q,
-  type,
-  score,
-  min_score,
-  max_score,
-  status,
-  rating,
-  sfw,
-  genres,
-  genres_exclude,
-  order_by,
-  sort,
-  letter,
-  producers,
-}: {
+export default async function getAnimeSearch(args: {
   page: number;
   limit: number;
   q?: string;
@@ -86,100 +68,7 @@ export default async function getAnimeSearch({
   letter?: string;
   producers?: string;
 }): Promise<CallToolResult> {
-  const url = new URL(`anime`, JIKAN_API_BASE);
-  url.searchParams.append("page", page.toString());
-  url.searchParams.append("limit", limit.toString());
-
-  if (q) {
-    url.searchParams.append("q", q);
-  }
-
-  if (type) {
-    url.searchParams.append("type", type);
-  }
-
-  if (score) {
-    url.searchParams.append("score", score.toString());
-  }
-
-  if (min_score) {
-    url.searchParams.append("min_score", min_score.toString());
-  }
-
-  if (max_score) {
-    url.searchParams.append("max_score", max_score.toString());
-  }
-
-  if (status) {
-    url.searchParams.append("status", status);
-  }
-
-  if (rating) {
-    url.searchParams.append("rating", rating);
-  }
-
-  if (sfw) {
-    url.searchParams.append("sfw", sfw.toString());
-  }
-
-  if (genres) {
-    url.searchParams.append("genres", genres);
-  }
-
-  if (genres_exclude) {
-    url.searchParams.append("genres_exclude", genres_exclude);
-  }
-
-  if (order_by) {
-    url.searchParams.append("order_by", order_by);
-  }
-
-  if (sort) {
-    url.searchParams.append("sort", sort);
-  }
-
-  if (letter) {
-    url.searchParams.append("letter", letter);
-  }
-
-  if (producers) {
-    url.searchParams.append("producers", producers);
-  }
-
-  logger.debug("Fetching data from Jikan API", {
-    url: url.toString(),
-    params: {
-      page,
-      limit,
-      q,
-      type,
-      score,
-      min_score,
-      max_score,
-      status,
-      rating,
-      sfw,
-      genres,
-      genres_exclude,
-      order_by,
-      sort,
-      letter,
-      producers,
-    },
-  });
-
-  const response = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error fetching data: ${response.statusText}`);
-  }
-
-  const data = await response.json();
+  const data = await getAnimeSearchFromJikan(args);
 
   return {
     content: [

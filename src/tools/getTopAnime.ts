@@ -1,4 +1,4 @@
-import { JIKAN_API_BASE } from "../constants.js";
+import { getTopAnime as getTopAnimeFromJikan } from "../lib/jikan.js";
 import {
   AnimeSearchQueryRating,
   AnimeSearchQueryType,
@@ -16,45 +16,14 @@ export const argSchema = {
   limit: z.number().default(25).describe("Number of results per page"),
 };
 
-export default async function getTopAnime({
-  page,
-  limit,
-  type,
-  rating,
-  sfw,
-}: {
+export default async function getTopAnime(args: {
   page: number;
   limit: number;
   type?: AnimeSearchQueryType;
   rating?: AnimeSearchQueryRating;
   sfw?: boolean;
 }): Promise<CallToolResult> {
-  const url = new URL("top/anime", JIKAN_API_BASE);
-  url.searchParams.append("page", page.toString());
-  url.searchParams.append("limit", limit.toString());
-
-  if (type) {
-    url.searchParams.append("type", type);
-  }
-  if (rating) {
-    url.searchParams.append("rating", rating);
-  }
-  if (sfw) {
-    url.searchParams.append("sfw", sfw.toString());
-  }
-
-  const response = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error fetching data: ${response.statusText}`);
-  }
-
-  const data = await response.json();
+  const data = await getTopAnimeFromJikan(args);
 
   return {
     content: [
